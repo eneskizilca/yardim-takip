@@ -103,6 +103,17 @@ export default function KisiTable({ mahalle }: Props) {
         .update({ [field]: newValue })
         .eq('id', kisi.id)
       if (error) throw error
+
+      // Toggle true yapıldığında yardımlar tablosuna kayıt ekle
+      if (newValue) {
+        const yardimMetni = field === 'ramazan_kumanyasi'
+          ? 'Ramazan kumanyası yardımı yapıldı.'
+          : 'Bot/mont yardımı yapıldı.'
+        await supabase
+          .from('yardimlar')
+          .insert({ kisi_id: kisi.id, yardim_icerigi: yardimMetni })
+      }
+
       showToast('Güncellendi.', 'success')
     } catch (err: unknown) {
       setKisiler((prev) => prev.map((k) => (k.id === kisi.id ? { ...k, [field]: !newValue } : k)))

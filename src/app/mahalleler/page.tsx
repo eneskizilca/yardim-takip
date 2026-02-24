@@ -29,10 +29,10 @@ export default function MahallelerPage() {
       if (error) throw error
 
       const mahalleMap = new Map<string, number>()
-      ;(data || []).forEach((item) => {
-        const m = item.mahalle || 'Belirtilmemiş'
-        mahalleMap.set(m, (mahalleMap.get(m) || 0) + 1)
-      })
+        ; (data || []).forEach((item) => {
+          const m = item.mahalle || 'Belirtilmemiş'
+          mahalleMap.set(m, (mahalleMap.get(m) || 0) + 1)
+        })
 
       const result = Array.from(mahalleMap.entries())
         .map(([mahalle, kisi_sayisi]) => ({ mahalle, kisi_sayisi }))
@@ -79,15 +79,17 @@ export default function MahallelerPage() {
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Mahalleler</h2>
 
       {mahalleler.length > 0 && (
-        <div className="relative mb-5">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-          <input
-            type="text"
-            value={filterTerm}
-            onChange={(e) => setFilterTerm(e.target.value)}
-            placeholder="Mahalle adı ile filtrele..."
-            className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors"
-          />
+        <div className="mb-5">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              value={filterTerm}
+              onChange={(e) => setFilterTerm(e.target.value)}
+              placeholder="Mahalle adı ile filtrele..."
+              className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-gray-50 focus:bg-white transition-colors"
+            />
+          </div>
           {mahalleler.length > 0 && (
             <p className="text-gray-400 text-base mt-2">
               {filteredMahalleler.length} / {mahalleler.length} mahalle gösteriliyor (A-Z sıralı)
