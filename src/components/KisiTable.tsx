@@ -16,22 +16,20 @@ interface Props {
 
 function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: () => void }) {
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-0.5">
       <button
         type="button"
         onClick={onChange}
-        className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors duration-200 cursor-pointer ${
-          checked ? 'bg-green-500' : 'bg-gray-300'
-        }`}
+        className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors duration-200 cursor-pointer ${checked ? 'bg-green-500' : 'bg-gray-300'
+          }`}
         title={checked ? 'Evet — kapatmak için tıklayın' : 'Hayır — açmak için tıklayın'}
       >
         <span
-          className={`inline-block h-6 w-6 rounded-full bg-white shadow-sm transform transition-transform duration-200 ${
-            checked ? 'translate-x-9' : 'translate-x-1'
-          }`}
+          className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transform transition-transform duration-200 ${checked ? 'translate-x-7' : 'translate-x-1'
+            }`}
         />
       </button>
-      <span className={`text-sm font-medium ${checked ? 'text-green-600' : 'text-gray-400'}`}>
+      <span className={`text-xs font-medium ${checked ? 'text-green-600' : 'text-gray-400'}`}>
         {checked ? 'Evet' : 'Hayır'}
       </span>
     </div>
@@ -110,8 +108,8 @@ export default function KisiTable({ mahalle }: Props) {
 
   const mahalleler = !mahalle
     ? Array.from(new Set(kisiler.map((k) => k.mahalle).filter(Boolean))).sort((a, b) =>
-        a.localeCompare(b, 'tr')
-      )
+      a.localeCompare(b, 'tr')
+    )
     : []
 
   const filteredKisiler = kisiler.filter((kisi) => {
@@ -154,9 +152,8 @@ export default function KisiTable({ mahalle }: Props) {
     <div>
       {toast && (
         <div
-          className={`fixed top-6 right-6 z-60 px-6 py-3.5 rounded-xl shadow-lg text-white text-base font-medium ${
-            toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-          }`}
+          className={`fixed top-6 right-6 z-60 px-6 py-3.5 rounded-xl shadow-lg text-white text-base font-medium ${toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`}
         >
           {toast.message}
         </div>
@@ -226,55 +223,54 @@ export default function KisiTable({ mahalle }: Props) {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="py-4 px-3 text-sm font-semibold text-gray-500 uppercase tracking-wider w-12"></th>
-                <th className="py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Ad</th>
-                <th className="py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Soyad</th>
-                <th className="py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">TC</th>
-                <th className="py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Telefon</th>
+                <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-10"></th>
+                <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Ad</th>
+                <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Soyad</th>
+                <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">TC</th>
+                <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Telefon</th>
                 {!mahalle && (
-                  <th className="py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Mahalle</th>
+                  <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Mahalle</th>
                 )}
-                <th className="py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider text-center">Çocuk</th>
-                <th className="py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider text-center">Ramazan K.</th>
-                <th className="py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider text-center">Bot/Mont</th>
-                <th className="py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider text-center">Arama/Not</th>
-                <th className="py-4 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider text-center">Yardımlar</th>
+                <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Çocuk</th>
+                <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Ramazan K.</th>
+                <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Bot/Mont</th>
+                <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Arama/Not</th>
+                <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Yardımlar</th>
               </tr>
             </thead>
             <tbody>
               {filteredKisiler.map((kisi, idx) => (
                 <tr
                   key={kisi.id}
-                  className={`border-b border-gray-100 hover:bg-blue-50/40 transition-colors ${
-                    idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
-                  }`}
+                  className={`border-b border-gray-100 hover:bg-blue-50/40 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
+                    }`}
                 >
-                  <td className="py-4 px-3 text-center">
+                  <td className="py-3 px-2 text-center">
                     <button
                       onClick={() => setEditKisi(kisi)}
-                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                       title="Düzenle"
                     >
-                      <Pencil size={17} />
+                      <Pencil size={15} />
                     </button>
                   </td>
-                  <td className="py-4 px-4 text-[17px] font-medium text-gray-800">{kisi.ad}</td>
-                  <td className="py-4 px-4 text-[17px] font-medium text-gray-800">{kisi.soyad}</td>
-                  <td className="py-4 px-4 text-[17px] text-gray-600 font-mono tracking-wide">{kisi.tc_no}</td>
-                  <td className="py-4 px-4 text-[17px] text-gray-600">{kisi.telefon}</td>
+                  <td className="py-3 px-2 text-[15px] font-medium text-gray-800">{kisi.ad}</td>
+                  <td className="py-3 px-2 text-[15px] font-medium text-gray-800">{kisi.soyad}</td>
+                  <td className="py-3 px-2 text-[15px] text-gray-600 font-mono tracking-wide">{kisi.tc_no}</td>
+                  <td className="py-3 px-2 text-[15px] text-gray-600">{kisi.telefon}</td>
                   {!mahalle && (
-                    <td className="py-4 px-4 text-[17px] text-gray-600">{kisi.mahalle}</td>
+                    <td className="py-3 px-2 text-[15px] text-gray-600">{kisi.mahalle}</td>
                   )}
-                  <td className="py-4 px-4 text-center">
+                  <td className="py-3 px-2 text-center">
                     <button
                       onClick={() => setSelectedKisiCocuk(kisi)}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 text-[17px] font-semibold transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 text-[15px] font-semibold transition-colors cursor-pointer"
                     >
-                      <Baby size={18} />
+                      <Baby size={16} />
                       {kisi.cocuk_sayisi}
                     </button>
                   </td>
-                  <td className="py-4 px-4">
+                  <td className="py-3 px-2">
                     <div className="flex justify-center">
                       <ToggleSwitch
                         checked={kisi.ramazan_kumanyasi}
@@ -282,7 +278,7 @@ export default function KisiTable({ mahalle }: Props) {
                       />
                     </div>
                   </td>
-                  <td className="py-4 px-4">
+                  <td className="py-3 px-2">
                     <div className="flex justify-center">
                       <ToggleSwitch
                         checked={kisi.bot_mont}
@@ -290,21 +286,21 @@ export default function KisiTable({ mahalle }: Props) {
                       />
                     </div>
                   </td>
-                  <td className="py-4 px-4 text-center">
+                  <td className="py-3 px-2 text-center">
                     <button
                       onClick={() => setSelectedKisiArama(kisi)}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 text-[17px] font-medium transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 text-[15px] font-medium transition-colors cursor-pointer"
                     >
-                      <Phone size={18} />
+                      <Phone size={16} />
                       Görüntüle
                     </button>
                   </td>
-                  <td className="py-4 px-4 text-center">
+                  <td className="py-3 px-2 text-center">
                     <button
                       onClick={() => setSelectedKisiYardim(kisi)}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 text-[17px] font-medium transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 text-[15px] font-medium transition-colors cursor-pointer"
                     >
-                      <HandHeart size={18} />
+                      <HandHeart size={16} />
                       Görüntüle
                     </button>
                   </td>

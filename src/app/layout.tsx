@@ -24,7 +24,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} antialiased bg-white font-sans`}>
         <AuthProvider>
           <Sidebar />
-          <main className="ml-64 min-h-screen bg-white px-8 py-6">
+          <main className="ml-64 min-h-screen bg-white px-8 py-6 overflow-x-hidden">
             {children}
           </main>
         </AuthProvider>
