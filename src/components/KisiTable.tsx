@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import type { Kisi } from '@/lib/types'
+import type { Kisi, Cocuk } from '@/lib/types'
 import { getErrorMessage } from '@/lib/utils'
-import { Phone, Baby, UserPlus, Loader2, Search, Pencil, ArrowUpDown, Filter, HandHeart } from 'lucide-react'
+import { Phone, Baby, UserPlus, Loader2, Search, Pencil, ArrowUpDown, Filter, HandHeart, FileSpreadsheet } from 'lucide-react'
+import XLSX from 'xlsx-js-style'
 import CocuklarModal from './CocuklarModal'
 import AramaModal from './AramaModal'
 import YardimModal from './YardimModal'
@@ -52,6 +53,9 @@ export default function KisiTable({ mahalle }: Props) {
   const [selectedKisiYardim, setSelectedKisiYardim] = useState<Kisi | null>(null)
   const [showKisiEkle, setShowKisiEkle] = useState(false)
   const [editKisi, setEditKisi] = useState<Kisi | null>(null)
+  const [exporting, setExporting] = useState(false)
+  const [filterRamazan, setFilterRamazan] = useState(false)
+  const [filterBotMont, setFilterBotMont] = useState(false)
 
   const showToast = useCallback((message: string, type: 'success' | 'error') => {
     setToast({ message, type })
@@ -64,7 +68,11 @@ export default function KisiTable({ mahalle }: Props) {
       setError(null)
       let query = supabase.from('kisiler').select('*')
       if (mahalle) {
-        query = query.eq('mahalle', mahalle)
+        if (mahalle === 'Belirtilmemiş') {
+          query = query.or('mahalle.is.null,mahalle.eq.')
+        } else {
+          query = query.eq('mahalle', mahalle)
+        }
       }
       if (sortMode === 'newest') {
         query = query.order('created_at', { ascending: false, nullsFirst: false })
@@ -114,16 +122,151 @@ export default function KisiTable({ mahalle }: Props) {
 
   const filteredKisiler = kisiler.filter((kisi) => {
     if (mahalleFilter && kisi.mahalle !== mahalleFilter) return false
+    if (filterRamazan && kisi.ramazan_kumanyasi) return false
+    if (filterBotMont && kisi.bot_mont) return false
     if (!searchTerm) return true
     const term = searchTerm.toLowerCase()
     return (
-      kisi.ad.toLowerCase().includes(term) ||
-      kisi.soyad.toLowerCase().includes(term) ||
-      kisi.tc_no.includes(term) ||
-      kisi.telefon.includes(term) ||
-      kisi.mahalle.toLowerCase().includes(term)
+      kisi.ad?.toLowerCase().includes(term) ||
+      kisi.soyad?.toLowerCase().includes(term) ||
+      (kisi.tc_no ?? '').includes(term) ||
+      (kisi.telefon ?? '').includes(term) ||
+      kisi.mahalle?.toLowerCase().includes(term)
     )
   })
+
+  async function exportToExcel() {
+    try {
+      setExporting(true)
+
+      // Tüm çocukları tek seferde çek
+      const kisiIds = filteredKisiler.map((k) => k.id)
+      let allCocuklar: Cocuk[] = []
+      if (kisiIds.length > 0) {
+        const { data } = await supabase
+          .from('cocuklar')
+          .select('*')
+          .in('ebeveyn_id', kisiIds)
+          .order('yas', { ascending: true })
+        allCocuklar = data || []
+      }
+
+      // Çocukları ebeveyn_id'ye göre grupla
+      const cocukMap = new Map<string, Cocuk[]>()
+      allCocuklar.forEach((c) => {
+        const list = cocukMap.get(c.ebeveyn_id) || []
+        list.push(c)
+        cocukMap.set(c.ebeveyn_id, list)
+      })
+
+      const rows = filteredKisiler.map((kisi, idx) => {
+        const cocuklar = cocukMap.get(kisi.id) || []
+        const cocukDetay = cocuklar.length > 0
+          ? cocuklar.map((c) => `${c.yas} yaş ${c.cinsiyet}`).join(', ')
+          : '-'
+
+        return {
+          'No': idx + 1,
+          'Ad': kisi.ad || '',
+          'Soyad': kisi.soyad || '',
+          'TC': kisi.tc_no || '',
+          'Telefon': kisi.telefon || '',
+          'Mahalle': kisi.mahalle || '',
+          'Adres': kisi.adres || '',
+          'Çocuk': kisi.cocuk_sayisi ?? 0,
+          'Çocuk Detayları': cocukDetay,
+        }
+      })
+
+      const ws = XLSX.utils.json_to_sheet(rows)
+
+      // Adres sütunu genişliğini veriye göre hesapla
+      const adresMaxLen = Math.max(5, ...rows.map((r) => (r['Adres'] || '').length))
+      const adresWch = Math.min(adresMaxLen + 2, 60)
+
+      const cocukDetayMaxLen = Math.max(5, ...rows.map((r) => (r['Çocuk Detayları'] || '').length))
+      const cocukDetayWch = Math.min(cocukDetayMaxLen + 2, 60)
+
+      // Sütun genişliklerini ayarla
+      ws['!cols'] = [
+        { wch: 3 },   // No
+        { wch: 15 },  // Ad
+        { wch: 15 },  // Soyad
+        { wch: 12 },  // TC
+        { wch: 12 },  // Telefon
+        { wch: 15 },  // Mahalle
+        { wch: adresWch },  // Adres (otomatik)
+        { wch: 6 },  // Çocuk
+        { wch: cocukDetayWch },  // Çocuk Detayları
+      ]
+
+      // Stil tanımları
+      const headerStyle = {
+        font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 12 },
+        fill: { fgColor: { rgb: '2E7D32' } },
+        alignment: { horizontal: 'center' as const, vertical: 'center' as const },
+        border: {
+          top: { style: 'thin' as const, color: { rgb: '1B5E20' } },
+          bottom: { style: 'thin' as const, color: { rgb: '1B5E20' } },
+          left: { style: 'thin' as const, color: { rgb: '1B5E20' } },
+          right: { style: 'thin' as const, color: { rgb: '1B5E20' } },
+        },
+      }
+
+      const evenRowStyle = {
+        fill: { fgColor: { rgb: 'E8F5E9' } },
+        border: {
+          top: { style: 'thin' as const, color: { rgb: 'C8E6C9' } },
+          bottom: { style: 'thin' as const, color: { rgb: 'C8E6C9' } },
+          left: { style: 'thin' as const, color: { rgb: 'C8E6C9' } },
+          right: { style: 'thin' as const, color: { rgb: 'C8E6C9' } },
+        },
+        alignment: { vertical: 'center' as const },
+      }
+
+      const oddRowStyle = {
+        fill: { fgColor: { rgb: 'FFFFFF' } },
+        border: {
+          top: { style: 'thin' as const, color: { rgb: 'C8E6C9' } },
+          bottom: { style: 'thin' as const, color: { rgb: 'C8E6C9' } },
+          left: { style: 'thin' as const, color: { rgb: 'C8E6C9' } },
+          right: { style: 'thin' as const, color: { rgb: 'C8E6C9' } },
+        },
+        alignment: { vertical: 'center' as const },
+      }
+
+      // Hücrelere stil uygula
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1')
+      const colCount = range.e.c + 1
+
+      for (let R = range.s.r; R <= range.e.r; R++) {
+        for (let C = range.s.c; C <= range.e.c; C++) {
+          const addr = XLSX.utils.encode_cell({ r: R, c: C })
+          if (!ws[addr]) ws[addr] = { v: '' }
+          if (R === 0) {
+            ws[addr].s = headerStyle
+          } else {
+            ws[addr].s = R % 2 === 0 ? evenRowStyle : oddRowStyle
+          }
+        }
+      }
+
+      // Satır yüksekliklerini ayarla
+      ws['!rows'] = [{ hpt: 28 }]
+      for (let i = 1; i <= range.e.r; i++) {
+        ws['!rows'].push({ hpt: 22 })
+      }
+
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Kişi Listesi')
+      XLSX.writeFile(wb, 'kisi-listesi.xlsx')
+      showToast('Excel dosyası indirildi.', 'success')
+    } catch (err: unknown) {
+      showToast('Excel oluşturulamadı: ' + getErrorMessage(err), 'error')
+    } finally {
+      setExporting(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -163,13 +306,23 @@ export default function KisiTable({ mahalle }: Props) {
         <h2 className="text-2xl font-bold text-gray-800">
           {mahalle ? `${mahalle} Mahallesi` : 'Kişi Listesi'}
         </h2>
-        <button
-          onClick={() => setShowKisiEkle(true)}
-          className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 text-lg font-medium transition-colors"
-        >
-          <UserPlus size={22} />
-          Yeni Kişi Ekle
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={exportToExcel}
+            disabled={exporting || filteredKisiler.length === 0}
+            className="flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 text-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {exporting ? <Loader2 size={22} className="animate-spin" /> : <FileSpreadsheet size={22} />}
+            {exporting ? 'Hazırlanıyor...' : "Excel'e Aktar"}
+          </button>
+          <button
+            onClick={() => setShowKisiEkle(true)}
+            className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 text-lg font-medium transition-colors"
+          >
+            <UserPlus size={22} />
+            Yeni Kişi Ekle
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-3 mb-5">
@@ -232,8 +385,22 @@ export default function KisiTable({ mahalle }: Props) {
                   <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Mahalle</th>
                 )}
                 <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Çocuk</th>
-                <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Ramazan K.</th>
-                <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Bot/Mont</th>
+                <th
+                  className={`py-3 px-2 text-xs font-semibold uppercase tracking-wider text-center cursor-pointer select-none transition-colors ${filterRamazan ? 'bg-red-100 text-red-700' : 'text-gray-500 hover:bg-gray-100'
+                    }`}
+                  onClick={() => setFilterRamazan((v) => !v)}
+                  title={filterRamazan ? 'Filtreyi kaldır' : 'Almamışları göster'}
+                >
+                  Ramazan K. {filterRamazan && '✕'}
+                </th>
+                <th
+                  className={`py-3 px-2 text-xs font-semibold uppercase tracking-wider text-center cursor-pointer select-none transition-colors ${filterBotMont ? 'bg-red-100 text-red-700' : 'text-gray-500 hover:bg-gray-100'
+                    }`}
+                  onClick={() => setFilterBotMont((v) => !v)}
+                  title={filterBotMont ? 'Filtreyi kaldır' : 'Almamışları göster'}
+                >
+                  Bot/Mont {filterBotMont && '✕'}
+                </th>
                 <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Arama/Not</th>
                 <th className="py-3 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Yardımlar</th>
               </tr>
