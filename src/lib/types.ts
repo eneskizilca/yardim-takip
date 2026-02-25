@@ -9,6 +9,7 @@ export interface Kisi {
   cocuk_sayisi: number
   ramazan_kumanyasi: boolean
   bot_mont: boolean
+  referans: string | null
   created_at: string | null
 }
 

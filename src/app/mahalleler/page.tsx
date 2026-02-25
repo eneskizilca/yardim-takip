@@ -108,7 +108,7 @@ export default function MahallelerPage() {
             <Link
               key={m.mahalle}
               href={`/mahalleler/${encodeURIComponent(m.mahalle)}`}
-              className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl px-6 py-5 hover:border-blue-300 hover:shadow-md transition-all group"
+              className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl px-4 py-4 md:px-6 md:py-5 hover:border-blue-300 hover:shadow-md transition-all group"
             >
               <div className="p-3 bg-blue-50 rounded-xl group-hover:bg-blue-100 transition-colors">
                 <MapPin size={28} className="text-blue-500" />

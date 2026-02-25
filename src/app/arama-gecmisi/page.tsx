@@ -110,7 +110,7 @@ export default function AramaGecmisiPage() {
   return (
     <div>
       {toast && (
-        <div className={`fixed top-6 right-6 z-60 px-6 py-3.5 rounded-xl shadow-lg text-white text-base font-medium ${toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
+        <div className={`fixed top-6 left-4 right-4 md:left-auto md:right-6 z-60 px-6 py-3.5 rounded-xl shadow-lg text-white text-base font-medium text-center md:text-left ${toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
           {toast.message}
         </div>
       )}
@@ -174,8 +174,8 @@ export default function AramaGecmisiPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-white border border-gray-200 rounded-xl px-6 py-5 hover:shadow-sm transition-shadow group">
-                    <div className="flex items-center justify-between mb-2.5">
+                  <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 md:px-6 md:py-5 hover:shadow-sm transition-shadow group">
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-2.5">
                       <div className="flex items-center gap-2 text-blue-700 font-semibold text-lg">
                         <User size={18} />
                         {arama.kisiler?.ad} {arama.kisiler?.soyad}
