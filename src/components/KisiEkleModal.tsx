@@ -20,6 +20,7 @@ const fieldDefs = [
   { key: 'telefon', label: 'Telefon', placeholder: '555 555 55 55', maxLength: undefined as number | undefined },
   { key: 'adres', label: 'Adres', placeholder: 'Açık adres', maxLength: undefined as number | undefined },
   { key: 'mahalle', label: 'Mahalle', placeholder: 'Mahalle adı', maxLength: undefined as number | undefined },
+  { key: 'referans', label: 'Referans', placeholder: 'Referans kişi veya kurum adı', maxLength: undefined as number | undefined },
 ] as const
 
 type FormKey = (typeof fieldDefs)[number]['key']
@@ -34,6 +35,7 @@ export default function KisiEkleModal({ onClose, onSaved, showToast, kisi }: Pro
     telefon: kisi?.telefon || '',
     adres: kisi?.adres || '',
     mahalle: kisi?.mahalle || '',
+    referans: kisi?.referans || '',
   })
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -72,6 +74,7 @@ export default function KisiEkleModal({ onClose, onSaved, showToast, kisi }: Pro
             telefon: form.telefon.trim(),
             adres: form.adres.trim(),
             mahalle: form.mahalle.trim(),
+            referans: form.referans.trim(),
           })
           .eq('id', kisi.id)
         if (error) throw error
@@ -84,6 +87,7 @@ export default function KisiEkleModal({ onClose, onSaved, showToast, kisi }: Pro
           telefon: form.telefon.trim(),
           adres: form.adres.trim(),
           mahalle: form.mahalle.trim(),
+          referans: form.referans.trim(),
           cocuk_sayisi: 0,
           ramazan_kumanyasi: false,
           bot_mont: false,
@@ -123,9 +127,9 @@ export default function KisiEkleModal({ onClose, onSaved, showToast, kisi }: Pro
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto"
+        className="bg-white w-full h-full md:h-auto md:rounded-2xl shadow-xl md:max-w-lg md:mx-4 p-6 md:max-h-[90vh] overflow-y-auto rounded-t-2xl md:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">

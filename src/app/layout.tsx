@@ -1,8 +1,8 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist } from 'next/font/google'
 import './globals.css'
 import AuthProvider from '@/components/AuthProvider'
-import Sidebar from '@/components/Sidebar'
+import ClientLayout from '@/components/ClientLayout'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -14,6 +14,11 @@ export const metadata: Metadata = {
   description: 'Yardım takip ve kişi yönetim sistemi',
 }
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -23,10 +28,7 @@ export default function RootLayout({
     <html lang="tr">
       <body className={`${geistSans.variable} antialiased bg-white font-sans`}>
         <AuthProvider>
-          <Sidebar />
-          <main className="ml-64 min-h-screen bg-white px-8 py-6 overflow-x-hidden">
-            {children}
-          </main>
+          <ClientLayout>{children}</ClientLayout>
         </AuthProvider>
       </body>
     </html>

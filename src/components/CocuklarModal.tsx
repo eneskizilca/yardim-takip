@@ -128,9 +128,9 @@ export default function CocuklarModal({ kisi, onClose, onCocukSayisiChanged, sho
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 p-6 max-h-[85vh] flex flex-col"
+        className="bg-white w-full h-full md:h-auto md:rounded-2xl shadow-xl md:max-w-lg md:mx-4 p-6 md:max-h-[85vh] flex flex-col rounded-t-2xl md:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
