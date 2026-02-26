@@ -30,8 +30,7 @@ export default function ReferanslarPage() {
 
             const refMap = new Map<string, number>()
                 ; (data || []).forEach((item) => {
-                    const r = item.referans?.trim()
-                    if (!r) return // Boş referansları atla
+                    const r = item.referans?.trim() || 'Belirtilmeyenler'
                     refMap.set(r, (refMap.get(r) || 0) + 1)
                 })
 

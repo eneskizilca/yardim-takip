@@ -87,7 +87,11 @@ export default function KisiTable({ mahalle, referans }: Props) {
         }
       }
       if (referans) {
-        query = query.eq('referans', referans)
+        if (referans === 'Belirtilmeyenler') {
+          query = query.or('referans.is.null,referans.eq.')
+        } else {
+          query = query.eq('referans', referans)
+        }
       }
       if (sortMode === 'newest') {
         query = query.order('created_at', { ascending: false, nullsFirst: false })
@@ -510,7 +514,7 @@ export default function KisiTable({ mahalle, referans }: Props) {
                     <td className="py-3 px-2 text-center">
                       <button
                         onClick={() => { setReferansKisi(kisi); setEditingReferans(false); setDeletingReferans(false) }}
-                        className="inline-flex items-center justify-center w-8 h-8 bg-indigo-50 text-indigo-600 rounded-full hover:bg-indigo-100 transition-colors cursor-pointer font-bold text-sm"
+                        className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-colors cursor-pointer font-bold text-sm ${kisi.referans ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-red-50 text-red-500 hover:bg-red-100'}`}
                         title={kisi.referans || 'Referans yok'}
                       >
                         R
@@ -622,7 +626,7 @@ export default function KisiTable({ mahalle, referans }: Props) {
                   </button>
                   <button
                     onClick={() => { setReferansKisi(kisi); setEditingReferans(false); setDeletingReferans(false) }}
-                    className="inline-flex items-center justify-center w-9 h-9 bg-indigo-50 text-indigo-600 rounded-full hover:bg-indigo-100 transition-colors font-bold text-sm"
+                    className={`inline-flex items-center justify-center w-9 h-9 rounded-full transition-colors font-bold text-sm ${kisi.referans ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-red-50 text-red-500 hover:bg-red-100'}`}
                     title="Referans"
                   >
                     R
